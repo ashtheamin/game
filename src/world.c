@@ -1,18 +1,19 @@
 #ifndef LIBSDEFS_INCLUDED
-#define LIBDEFS_INCLUDED
+#define LIBSDEFS_INCLUDED
     #include "libsdefs.c"
 #endif
 
 #include "player.c"
 #include "tile.c"
+#include "entity.c"
 
-enum WORLD_STATUS {WORLD_STATUS_RUNNING, WORLD_STATUS_QUIT};
 struct world {
     SDL_Window* window;
     SDL_Renderer* renderer;
     enum WORLD_STATUS status;
     struct player player;
-    struct tilemap* tilemap;
+    struct tilemap* tilemap_list;
+    struct entity* entity_list;
 };
 
 struct world* world_init() {
@@ -54,8 +55,8 @@ struct world* world_init() {
         return NULL;
     }
 
-    world->tilemap = tilemap_init("src/maps/map1");
-    if (world->tilemap == NULL) {
+    world->tilemap_list = tilemap_init("src/maps/map1");
+    if (world->tilemap_list == NULL) {
          printf("world_init(): Failed to initialise tilemap.\n"
         "Exiting.\n");
         if (world->renderer != NULL) SDL_DestroyRenderer(world->renderer);
@@ -65,9 +66,9 @@ struct world* world_init() {
         return NULL;
     }
 
-    for (int i=0; i < world->tilemap->num_rows; i++) {
-        for (int j=0; j < world->tilemap->num_columns; j++) {
-            printf("%d", world->tilemap->tileset[i][j]);
+    for (int i=0; i < world->tilemap_list->num_rows; i++) {
+        for (int j=0; j < world->tilemap_list->num_columns; j++) {
+            printf("%d", world->tilemap_list->tileset[i][j]);
             
         }printf("\n");
     }
@@ -83,7 +84,7 @@ void world_quit(struct world* world) {
     if (world == NULL) return;
     if (world->renderer != NULL) SDL_DestroyRenderer(world->renderer);
     if (world->window != NULL) SDL_DestroyWindow(world->window);
-    if (world->tilemap != NULL) tilemap_free(world->tilemap);
+    if (world->tilemap_list != NULL) tilemap_list_free(world->tilemap_list);
     SDL_Quit();
     free(world);
 }

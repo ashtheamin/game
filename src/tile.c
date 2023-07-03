@@ -1,11 +1,8 @@
 #ifndef LIBSDEFS_INCLUDED
-#define LIBDEFS_INCLUDED
+#define LIBSDEFS_INCLUDED
     #include "libsdefs.c"
 #endif
 
-enum TILESET {
-    TILE_AIR, TILE_WALL
-};
 
 struct tilemap {
     int** tileset;
@@ -105,4 +102,16 @@ void tilemap_free(struct tilemap* tilemap) {
     }
     free(tilemap->tileset);
     free(tilemap);
+}
+
+void tilemap_list_free(struct tilemap* tilemap_list) {
+    if (tilemap_list == NULL) return;
+    struct tilemap* tilemap = tilemap_list;
+    struct tilemap* next;
+
+    while (tilemap != NULL) {
+        next = tilemap->next;
+        tilemap_free(tilemap);
+        tilemap = next;
+    }
 }
