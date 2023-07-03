@@ -65,6 +65,13 @@ struct world* world_init() {
         return NULL;
     }
 
+    for (int i=0; i < world->tilemap->num_rows; i++) {
+        for (int j=0; j < world->tilemap->num_columns; j++) {
+            printf("%d", world->tilemap->tileset[i][j]);
+            
+        }printf("\n");
+    }
+
     world->player.x = 0;
     world->player.y = 0;
 

@@ -52,16 +52,16 @@ struct tilemap* tilemap_init(char* filename) {
     tilemap->num_rows = count;
     tilemap->num_columns = columns;
 
-    tilemap->tileset = (int**)malloc(tilemap->num_rows * sizeof(int*));
-    for (int i = 0; i < tilemap->num_rows; i++) {
-        tilemap->tileset[i] = (int*)malloc(tilemap->num_columns * sizeof(int));
-    }
-
     fp = fopen(filename, "r+");
     if (fp == NULL) {
         printf("Failed to open file '%s'. Exiting.\n", filename);
         free(tilemap);
         return NULL;
+    }
+
+    tilemap->tileset = (int**)malloc(tilemap->num_rows * sizeof(int*));
+    for (int i = 0; i < tilemap->num_rows; i++) {
+        tilemap->tileset[i] = (int*)malloc(tilemap->num_columns * sizeof(int));
     }
 
     buffer = malloc(sizeof(char) * 4096);
@@ -76,6 +76,16 @@ struct tilemap* tilemap_init(char* filename) {
                     tilemap->tileset[row][current_column] = TILE_AIR;break;
                 case 'W':
                     tilemap->tileset[row][current_column] = TILE_WALL;break;
+                default:
+                    printf("tilemap_init(): Invalid tile read. Returning\n");
+                    for (int i=0; i < tilemap->num_rows; i++) {
+                        free(tilemap->tileset[i]);
+                    }
+                    free(tilemap->tileset);
+                    free(tilemap);
+                    fclose(fp);
+                    free(buffer);
+                    return NULL;
             }
             current_column++;
         }
