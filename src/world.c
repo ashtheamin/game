@@ -3,11 +3,16 @@
     #include "libsdefs.c"
 #endif
 
+#include "player.c"
+#include "tile.c"
+
 enum WORLD_STATUS {WORLD_STATUS_RUNNING, WORLD_STATUS_QUIT};
 struct world {
     SDL_Window* window;
     SDL_Renderer* renderer;
     enum WORLD_STATUS status;
+    struct player player;
+    struct tilemap* tilemap;
 };
 
 struct world* world_init() {
@@ -49,6 +54,20 @@ struct world* world_init() {
         return NULL;
     }
 
+    world->tilemap = tilemap_init("src/maps/map1");
+    if (world->tilemap == NULL) {
+         printf("world_init(): Failed to initialise tilemap.\n"
+        "Exiting.\n");
+        if (world->renderer != NULL) SDL_DestroyRenderer(world->renderer);
+        if (world->window != NULL) SDL_DestroyWindow(world->window);
+        SDL_Quit();
+        free(world);
+        return NULL;
+    }
+
+    world->player.x = 0;
+    world->player.y = 0;
+
     world->status = WORLD_STATUS_RUNNING;
     return world;
 }
@@ -57,6 +76,7 @@ void world_quit(struct world* world) {
     if (world == NULL) return;
     if (world->renderer != NULL) SDL_DestroyRenderer(world->renderer);
     if (world->window != NULL) SDL_DestroyWindow(world->window);
+    if (world->tilemap != NULL) tilemap_free(world->tilemap);
     SDL_Quit();
     free(world);
 }
@@ -80,4 +100,4 @@ void world_loop(void* world_loop_argument) {
     SDL_SetRenderDrawColor(world->renderer, 0, 128, 128, 0);
     SDL_RenderDrawLine(world->renderer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     SDL_RenderPresent(world->renderer);
-}
+}   
