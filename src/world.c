@@ -89,12 +89,17 @@ struct world* world_init() {
         }
     }
 
-    world->player.x = 0;
-    world->player.y = 0;
+    world->player.x = 50;
+    world->player.y = 50;
+    world->player.velx = 0;
+    world->player.vely = 0;
+    world->player.velocity = 10;
+    world->player.width = 0.2 * world->tilemap_list->width;
+    world->player.height = 0.7 * world->tilemap_list->height;
 
     world->camera.x = 400;
     world->camera.y = 0;
-    world->camera.speed = 10;
+    world->camera.speed = 40;
 
     world->status = WORLD_STATUS_RUNNING;
     return world;
@@ -137,8 +142,7 @@ void world_input(struct world* world) {
 
                 case SDLK_RIGHT:
                     world->camera.x = world->camera.x + world->camera.speed;
-                    break;
-                    
+                    break;       
             }
         }
     }
@@ -165,6 +169,14 @@ void world_render(struct world* world) {
         }
         entity = entity->next;
     }
+    SDL_Rect player_rect;
+    player_rect.x = world->player.x;
+    player_rect.y = world->player.y;
+    player_rect.w = world->player.width;
+    player_rect.h = world->player.height;
+
+    SDL_SetRenderDrawColor(world->renderer, 255, 105, 180, 0);
+    SDL_RenderFillRect(world->renderer, &player_rect);
 
     SDL_RenderPresent(world->renderer);
 }
