@@ -8,6 +8,8 @@ struct tilemap {
     int** tileset;
     int num_rows;
     int num_columns;
+    int width;
+    int height;
     struct tilemap* next;
 };
 
@@ -92,6 +94,8 @@ struct tilemap* tilemap_init(char* filename) {
     fclose(fp);
 
     tilemap->next = NULL;
+    tilemap->width = 10;
+    tilemap->height = 10;
     return tilemap;
 }
 

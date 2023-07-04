@@ -66,9 +66,23 @@ struct world* world_init() {
         return NULL;
     }
 
-    for (int i=0; i < world->tilemap_list->num_rows; i++) {
-        for (int j=0; j < world->tilemap_list->num_columns; j++) {
-            printf("%d", world->tilemap_list->tileset[i][j]);
+   
+    // Load tiles into the world.
+    world->entity_list = entity_init();
+    struct entity* current_entity = world->entity_list;
+
+    struct tilemap* tilemap = world->tilemap_list;
+
+    for (int i=0; i < tilemap->num_rows; i++) {
+        for (int j=0; j < tilemap->num_columns; j++) {
+            current_entity->rect.w = tilemap->width;
+            current_entity->rect.h = tilemap->height;
+            current_entity->rect.x = j * tilemap->width;
+            current_entity->rect.y = i * tilemap->height;
+
+            current_entity->next = entity_init();
+            current_entity = current_entity->next;
+            printf("%d", tilemap->tileset[i][j]);
             
         }printf("\n");
     }
@@ -85,11 +99,13 @@ void world_quit(struct world* world) {
     if (world->renderer != NULL) SDL_DestroyRenderer(world->renderer);
     if (world->window != NULL) SDL_DestroyWindow(world->window);
     if (world->tilemap_list != NULL) tilemap_list_free(world->tilemap_list);
+    if (world->entity_list != NULL) entity_list_free(world->entity_list);
     SDL_Quit();
     free(world);
 }
 
 void world_input(struct world* world) {
+    if (world == NULL) return;
     SDL_Event event;
     while (SDL_PollEvent(&event) != 0) {
         if (event.type == SDL_QUIT) {
@@ -98,14 +114,25 @@ void world_input(struct world* world) {
     }
 }
 
-void world_loop(void* world_loop_argument) {
-    struct world* world = (struct world*)world_loop_argument;
+void world_render(struct world* world) {
     if (world == NULL) return;
 
-    world_input(world);
     SDL_SetRenderDrawColor(world->renderer, 0, 0, 0, 0);
     SDL_RenderClear(world->renderer);
     SDL_SetRenderDrawColor(world->renderer, 0, 128, 128, 0);
-    SDL_RenderDrawLine(world->renderer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    struct entity* entity = world->entity_list;
+    while (entity != NULL) {
+        SDL_RenderDrawRect(world->renderer, &entity->rect);
+        entity = entity->next;
+    }
+
     SDL_RenderPresent(world->renderer);
-}   
+}
+
+void world_loop(void* world_loop_argument) {
+    struct world* world = (struct world*)world_loop_argument;
+    if (world == NULL) return;
+    world_input(world); 
+    world_render(world);   
+}
