@@ -6,6 +6,7 @@
 #include "player.c"
 #include "tile.c"
 #include "entity.c"
+#include "camera.c"
 
 struct world {
     SDL_Window* window;
@@ -14,6 +15,7 @@ struct world {
     struct player player;
     struct tilemap* tilemap_list;
     struct entity* entity_list;
+    struct camera camera;
 };
 
 struct world* world_init() {
@@ -90,6 +92,10 @@ struct world* world_init() {
     world->player.x = 0;
     world->player.y = 0;
 
+    world->camera.x = 400;
+    world->camera.y = 0;
+    world->camera.speed = 10;
+
     world->status = WORLD_STATUS_RUNNING;
     return world;
 }
@@ -111,6 +117,30 @@ void world_input(struct world* world) {
         if (event.type == SDL_QUIT) {
             world->status = WORLD_STATUS_QUIT;
         }
+
+        if (event.type == SDL_KEYDOWN) {
+            switch(event.key.keysym.sym) {
+                case SDLK_UP:
+                    if (world->camera.y - world->camera.speed >= 0) {
+                        world->camera.y = world->camera.y - world->camera.speed;
+                    }
+                    break;
+
+                case SDLK_DOWN:
+                    world->camera.y = world->camera.y + world->camera.speed;
+                    break;
+
+                case SDLK_LEFT:
+                if (world->camera.x - world->camera.speed >= 0)
+                    world->camera.x = world->camera.x - world->camera.speed;
+                break;
+
+                case SDLK_RIGHT:
+                    world->camera.x = world->camera.x + world->camera.speed;
+                    break;
+                    
+            }
+        }
     }
 }
 
@@ -125,9 +155,13 @@ void world_render(struct world* world) {
     
     while (entity != NULL) {
         if (entity->is_tile == true) {
-            if (entity->tile != TILE_AIR)
-            SDL_RenderFillRect(world->renderer, &entity->rect);
-            
+            if (entity->tile != TILE_AIR) {
+                SDL_Rect rect = entity->rect;
+                rect.x = rect.x - world->camera.x;
+                rect.y = rect.y - world->camera.y;
+
+                SDL_RenderFillRect(world->renderer, &rect);
+            }
         }
         entity = entity->next;
     }
