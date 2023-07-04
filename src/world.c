@@ -75,16 +75,16 @@ struct world* world_init() {
 
     for (int i=0; i < tilemap->num_rows; i++) {
         for (int j=0; j < tilemap->num_columns; j++) {
+            current_entity->is_tile = true;
             current_entity->rect.w = tilemap->width;
             current_entity->rect.h = tilemap->height;
             current_entity->rect.x = j * tilemap->width;
             current_entity->rect.y = i * tilemap->height;
+            current_entity->tile = tilemap->tileset[i][j];
 
             current_entity->next = entity_init();
-            current_entity = current_entity->next;
-            printf("%d", tilemap->tileset[i][j]);
-            
-        }printf("\n");
+            current_entity = current_entity->next;   
+        }
     }
 
     world->player.x = 0;
@@ -122,8 +122,13 @@ void world_render(struct world* world) {
     SDL_SetRenderDrawColor(world->renderer, 0, 128, 128, 0);
 
     struct entity* entity = world->entity_list;
+    
     while (entity != NULL) {
-        SDL_RenderDrawRect(world->renderer, &entity->rect);
+        if (entity->is_tile == true) {
+            if (entity->tile != TILE_AIR)
+            SDL_RenderFillRect(world->renderer, &entity->rect);
+            
+        }
         entity = entity->next;
     }
 

@@ -5,6 +5,8 @@
 
 struct entity {
     SDL_Rect rect;
+    bool is_tile;
+    enum TILESET tile;
     struct entity* next;
 };
 
@@ -15,6 +17,9 @@ struct entity* entity_init() {
     entity->rect.y = 0;
     entity->rect.w = 0;
     entity->rect.h = 0;
+
+    entity->is_tile = false;
+    entity->tile = TILE_AIR;
 
     entity->next = NULL;
     return entity;

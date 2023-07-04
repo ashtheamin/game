@@ -94,8 +94,8 @@ struct tilemap* tilemap_init(char* filename) {
     fclose(fp);
 
     tilemap->next = NULL;
-    tilemap->width = 10;
-    tilemap->height = 10;
+    tilemap->width = 20;
+    tilemap->height = 20;
     return tilemap;
 }
 
